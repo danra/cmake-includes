@@ -13,8 +13,15 @@ target_include_directories(Benchmarks PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/source
 # Copy over compile definitions from our plugin target so it has all the JUCEy goodness
 target_compile_definitions(Benchmarks PRIVATE $<TARGET_PROPERTY:${PROJECT_NAME},COMPILE_DEFINITIONS>)
 
+# (Technique copied from juce_add_plugin)
+# We re-export the shared code's private include dirs, because the wrapper targets need to
+# see the module headers. We don't just link publicly, because that would introduce
+# conflicting macro definitions.
+target_include_directories(Benchmarks PRIVATE
+    $<TARGET_PROPERTY:${PROJECT_NAME},INCLUDE_DIRECTORIES>)
+
 # And give tests access to our shared code
-target_link_libraries(Benchmarks PRIVATE SharedCode Catch2::Catch2WithMain)
+target_link_libraries(Benchmarks PRIVATE ${PROJECT_NAME} Catch2::Catch2WithMain)
 
 # Make an Xcode Scheme for the test executable so we can run tests in the IDE
 set_target_properties(Benchmarks PROPERTIES XCODE_GENERATE_SCHEME ON)
